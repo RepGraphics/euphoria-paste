@@ -13,12 +13,12 @@ Objectives:
 * Easier Brand Configuration.
 * Upgraded to use ES Modules ✅
 * Migrated from Winston to Pino ✅
+* Discord Webhooks Added for Additional Logging ✅
 
 
 ## Tested Browsers
 
-* Firefox 8
-* Chrome 17
+* Chrome - Version 131.0.6778.205 (Official Build) (64-bit)
 
 ## Installation
 
