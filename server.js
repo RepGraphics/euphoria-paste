@@ -1,164 +1,158 @@
-var http = require('http');
-var fs = require('fs');
+// Import necessary modules
+import http from 'http';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import uglify from 'uglify-js';
+import pino from 'pino';
+import connect from 'connect';
+import route from 'connect-route';
+import serveStatic from 'st';
+import rateLimit from 'connect-ratelimit';
+import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+import config from './config.js';
+import DocumentHandler from './lib/document_handler.js';
 
-var uglify = require('uglify-js');
-var winston = require('winston');
-var connect = require('connect');
-var route = require('connect-route');
-var connect_st = require('st');
-var connect_rate_limit = require('connect-ratelimit');
+dotenv.config();
 
-var DocumentHandler = require('./lib/document_handler');
-
-// Load the configuration and set some defaults
-const configPath = process.argv.length <= 2 ? 'config.js' : process.argv[2];
-const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 config.port = process.env.PORT || config.port || 7777;
 config.host = process.env.HOST || config.host || 'localhost';
+config.storage = process.env.STORAGE || config.storage || { type: 'file' };
+config.storage.type = process.env.STORAGE_TYPE || config.storage.type || 'file';
+const discordWebhookUrl = process.env.DISCORD_WEBHOOK_URL || config.discordWebhookUrl || null;
 
-// Set up the logger
-if (config.logging) {
-  try {
-    winston.remove(winston.transports.Console);
-  } catch(e) {
-    /* was not present */
-  }
+// Configure Pino logger
+const logger = pino({
+    transport: {
+        target: 'pino-pretty',
+        options: {
+            colorize: true,
+            translateTime: 'SYS:standard',
+            ignore: 'pid,hostname',
+        },
+    },
+});
 
-  var detail, type;
-  for (var i = 0; i < config.logging.length; i++) {
-    detail = config.logging[i];
-    type = detail.type;
-    delete detail.type;
-    winston.add(winston.transports[type], detail);
-  }
-}
-
-// build the store from the config on-demand - so that we don't load it
-// for statics
-if (!config.storage) {
-  config.storage = { type: 'file' };
-}
-if (!config.storage.type) {
-  config.storage.type = 'file';
-}
-
-var Store, preferredStore;
-
-if (process.env.REDISTOGO_URL && config.storage.type === 'redis') {
-  var redisClient = require('redis-url').connect(process.env.REDISTOGO_URL);
-  Store = require('./lib/document_stores/redis');
-  preferredStore = new Store(config.storage, redisClient);
-}
-else {
-  Store = require('./lib/document_stores/' + config.storage.type);
-  preferredStore = new Store(config.storage);
-}
-
-// Compress the static javascript assets
-if (config.recompressStaticAssets) {
-  var list = fs.readdirSync('./static');
-  for (var j = 0; j < list.length; j++) {
-    var item = list[j];
-    if ((item.indexOf('.js') === item.length - 3) && (item.indexOf('.min.js') === -1)) {
-      var dest = item.substring(0, item.length - 3) + '.min' + item.substring(item.length - 3);
-      var orig_code = fs.readFileSync('./static/' + item, 'utf8');
-
-      fs.writeFileSync('./static/' + dest, uglify.minify(orig_code).code, 'utf8');
-      winston.info('compressed ' + item + ' into ' + dest);
+// Function to send logs to Discord
+function sendLogToDiscord(message) {
+    if (discordWebhookUrl) {
+        fetch(discordWebhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: message }),
+        }).catch((err) => {
+            logger.error('Failed to send log to Discord', { error: err });
+        });
     }
-  }
 }
 
-// Send the static documents into the preferred store, skipping expirations
-var path, data;
-for (var name in config.documents) {
-  path = config.documents[name];
-  data = fs.readFileSync(path, 'utf8');
-  winston.info('loading static document', { name: name, path: path });
-  if (data) {
-    preferredStore.set(name, data, function(cb) {
-      winston.debug('loaded static document', { success: cb });
-    }, true);
-  }
-  else {
-    winston.warn('failed to load static document', { name: name, path: path });
-  }
+// Initialize key generator
+const { type: keyGenType = 'random', ...keyGenOptions } = config.keyGenerator || {};
+const KeyGenerator = (await import(`./lib/key_generators/${keyGenType}.js`)).default;
+const keyGenerator = new KeyGenerator(keyGenOptions);
+
+// Initialize the preferred store
+let Store;
+let preferredStore;
+if (process.env.REDISTOGO_URL && config.storage.type === 'redis') {
+    const redisClient = (await import('redis-url')).connect(process.env.REDISTOGO_URL);
+    Store = (await import('./lib/document_stores/redis.js')).default;
+    preferredStore = new Store(config.storage, redisClient);
+} else {
+    Store = (await import(`./lib/document_stores/${config.storage.type}.js`)).default;
+    preferredStore = new Store(config.storage);
 }
 
-// Pick up a key generator
-var pwOptions = config.keyGenerator || {};
-pwOptions.type = pwOptions.type || 'random';
-var gen = require('./lib/key_generators/' + pwOptions.type);
-var keyGenerator = new gen(pwOptions);
-
-// Configure the document handler
-var documentHandler = new DocumentHandler({
+const documentHandler = new DocumentHandler({
   store: preferredStore,
   maxLength: config.maxLength,
   keyLength: config.keyLength,
-  keyGenerator: keyGenerator
+  keyGenerator,
+  config, // Pass the full config including discordWebhookUrl
 });
 
-var app = connect();
+// Resolve __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Rate limit all requests
-if (config.rateLimits) {
-  config.rateLimits.end = true;
-  app.use(connect_rate_limit(config.rateLimits));
+// Compress static JavaScript assets
+if (config.recompressStaticAssets) {
+  const staticDir = path.join(__dirname, 'static');
+  const files = fs.readdirSync(staticDir);
+
+  files.filter(file => file.endsWith('.js') && !file.endsWith('.min.js')).forEach(file => {
+      const filePath = path.join(staticDir, file);
+      const minFilePath = filePath.replace(/\.js$/, '.min.js');
+      try {
+          const code = fs.readFileSync(filePath, 'utf8');
+          const minified = uglify.minify(code);
+
+          if (minified.error) {
+              logger.error(`Error minifying file: ${file}`, {
+                  error: minified.error.message,
+                  filePath,
+              });
+          } else {
+              fs.writeFileSync(minFilePath, minified.code, 'utf8');
+              logger.info(`Compressed ${file} to ${path.basename(minFilePath)}`);
+          }
+      } catch (err) {
+          logger.error(`Failed to process file: ${file}`, { error: err.message });
+      }
+  });
 }
 
-// first look at API calls
-app.use(route(function(router) {
-  // get raw documents - support getting with extension
+// Preload static documents
+for (const [name, documentPath] of Object.entries(config.documents || {})) {
+    try {
+        const data = fs.readFileSync(documentPath, 'utf8');
+        preferredStore.set(name, data, success => {
+            logger.debug(`Loaded static document: ${name}`);
+        }, true);
+    } catch (err) {
+        logger.warn(`Failed to load static document: ${name} - ${err.message}`);
+    }
+}
 
-  router.get('/raw/:id', function(request, response) {
-    return documentHandler.handleRawGet(request, response, config);
-  });
+const app = connect();
 
-  router.head('/raw/:id', function(request, response) {
-    return documentHandler.handleRawGet(request, response, config);
-  });
+// Apply rate limiting if configured
+if (config.rateLimits) {
+    app.use(rateLimit({ ...config.rateLimits, end: true }));
+}
 
-  // add documents
-
-  router.post('/documents', function(request, response) {
-    return documentHandler.handlePost(request, response);
-  });
-
-  // get documents
-  router.get('/documents/:id', function(request, response) {
-    return documentHandler.handleGet(request, response, config);
-  });
-
-  router.head('/documents/:id', function(request, response) {
-    return documentHandler.handleGet(request, response, config);
-  });
+// Define API routes
+app.use(route((router) => {
+  router.get('/raw/:id', (req, res) => documentHandler.handleRawGet(req, res, config));
+  router.head('/raw/:id', (req, res) => documentHandler.handleRawGet(req, res, config));
+  router.get('/documents/:id', (req, res) => documentHandler.handleGet(req, res, config));
+  router.post('/documents', (req, res) => documentHandler.handlePost(req, res));
+  router.head('/documents/:id', (req, res) => documentHandler.handleGet(req, res, config));
 }));
 
-// Otherwise, try to match static files
-app.use(connect_st({
-  path: __dirname + '/static',
-  content: { maxAge: config.staticMaxAge },
-  passthrough: true,
-  index: false
+
+// Serve static files
+const staticOptions = {
+    path: path.join(__dirname, 'static'),
+    content: { maxAge: config.staticMaxAge },
+    passthrough: true,
+    index: false
+};
+app.use(serveStatic(staticOptions));
+
+// Fallback to index.html for unmatched routes
+app.use(route(router => {
+    router.get('/:id', (req, res, next) => {
+        req.sturl = '/';
+        next();
+    });
 }));
+app.use(serveStatic({ ...staticOptions, index: 'index.html' }));
 
-// Then we can loop back - and everything else should be a token,
-// so route it back to /
-app.use(route(function(router) {
-  router.get('/:id', function(request, response, next) {
-    request.sturl = '/';
-    next();
-  });
-}));
-
-// And match index
-app.use(connect_st({
-  path: __dirname + '/static',
-  content: { maxAge: config.staticMaxAge },
-  index: 'index.html'
-}));
-
-http.createServer(app).listen(config.port, config.host);
-
-winston.info('listening on ' + config.host + ':' + config.port);
+// Start the server
+http.createServer(app).listen(config.port, config.host, () => {
+    const message = `Server listening on ${config.host}:${config.port}`;
+    logger.info(message);
+    sendLogToDiscord(message);
+});

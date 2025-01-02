@@ -1,70 +1,112 @@
 <html>
+  <head>
+    <title>Euphoria Development | Paste</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="solarized_dark.css" />
+    <link rel="stylesheet" type="text/css" href="application.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="highlight.min.js"></script>
+    <script src="application.js"></script>
+    <link rel="icon" type="image/png" href="https://euphoriadevelopment.uk/assets/img/euphoria.png" />
+	<script src="https://unpkg.com/@popperjs/core@2"></script>
+	<script src="https://unpkg.com/tippy.js@6"></script>
+	<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/dark.css" />
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+	
+    <meta name="robots" content="noindex,nofollow" />
 
-	<head>
-
-		<title>hastebin</title>
-		<meta charset="utf-8" />
-		<link rel="stylesheet" type="text/css" href="solarized_dark.css"/>
-		<link rel="stylesheet" type="text/css" href="application.css"/>
-
-		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-		<script type="text/javascript" src="highlight.min.js"></script>
-		<script type="text/javascript" src="application.min.js"></script>
-
-		<meta name="robots" content="noindex,nofollow"/>
-
-		<script type="text/javascript">
-			var app = null;
-			// Handle pops
-			var handlePop = function(evt) {
-				var path = evt.target.location.href;
-				if (path === app.baseUrl) { app.newDocument(true); }
-				else { app.loadDocument(path.split('/').slice(-1)[0]); }
+	<script type="text/javascript">
+		var app = null;
+		// Handle pops
+		var handlePop = function(evt) {
+			var path = evt.target.location.href;
+			if (path === app.baseUrl) { app.newDocument(true); }
+			else { app.loadDocument(path.split('/').slice(-1)[0]); }
+		};
+		// Set up the pop state to handle loads, skipping the first load
+		// to make chrome behave like others:
+		// http://code.google.com/p/chromium/issues/detail?id=63040
+		setTimeout(function() {
+			window.onpopstate = function(evt) {
+				try { handlePop(evt); } catch(err) { /* not loaded yet */ }
 			};
-			// Set up the pop state to handle loads, skipping the first load
-			// to make chrome behave like others:
-			// http://code.google.com/p/chromium/issues/detail?id=63040
-			setTimeout(function() {
-				window.onpopstate = function(evt) {
-					try { handlePop(evt); } catch(err) { /* not loaded yet */ }
-				};
-			}, 1000);
-			// Construct app and load initial path
-			$(function() {
-				var baseUrl = window.location.href.split('/');
-				baseUrl = baseUrl.slice(0, baseUrl.length - 1).join('/') + '/';
-				app = new haste('hastebin', { twitter: true, baseUrl: baseUrl });
-				handlePop({ target: window });
+		}, 1000);
+		// Construct app and load initial path
+		$(function() {
+			var baseUrl = window.location.href.split('/');
+			baseUrl = baseUrl.slice(0, baseUrl.length - 1).join('/') + '/';
+			app = new haste('Euphoria Paste', { discord: true, baseUrl: baseUrl });
+			handlePop({ target: window });
+		});
+	</script>
+  </head>
+
+  <body>
+    <ul id="messages"></ul>
+
+    <div id="key">
+      <div id="pointer" style="display: none;"></div>
+      <div id="box1">
+        <img src="https://euphoriadevelopment.uk/assets/img/euphoria.png" alt="Logo" class="logo" />
+      </div>
+      <div id="box2">
+        <button class="save function button-picture"><i class="fa fa-save"></i></button>
+        <button class="new function button-picture"><i class="fa fa-file"></i></button>
+        <button class="duplicate function button-picture"><i class="fa fa-copy"></i></button>
+        <button class="raw function button-picture"><i class="fa fa-file-alt"></i></button>
+        <button class="discord function button-picture"><i class="fa-brands fa-discord"></i></button>
+      </div>
+      <div id="box3" style="display: none;">
+        <div class="label"></div>
+        <div class="shortcut"></div>
+      </div>
+    </div>
+
+    <div id="linenos"></div>
+    <pre id="box" style="display: none;" class="hljs" tabindex="0"><code></code></pre>
+    <textarea spellcheck="false" style="display: none;"></textarea>
+
+	<!-- Floating Action Buttons for Mobile -->
+	<div id="mobile-controls">
+		<button id="save-btn" class="fab save" data-tippy-content="Save"><i class="fa fa-save"></i></button>
+		<button id="new-btn" class="fab new" data-tippy-content="New Document"><i class="fa fa-file"></i></button>
+		<button id="duplicate-btn" class="fab duplicate" data-tippy-content="Duplicate"><i class="fa fa-copy"></i></button>
+		<button id="raw-btn" class="fab raw" data-tippy-content="View Raw"><i class="fa fa-file-alt"></i></button>
+		<button id="discord-btn" class="fab discord" data-tippy-content="Support Discord"><i class="fa-brands fa-discord"></i></button>
+	</div>
+	
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			const buttons = document.querySelectorAll('#mobile-controls .fab');
+	
+			// Initialize Tippy.js tooltips
+			buttons.forEach((button) => {
+				tippy(button, {
+					content: button.getAttribute('data-tippy-content'),
+					theme: 'dark',
+					duration: [300, 200],
+					placement: 'left',
+					arrow: true,
+				});
 			});
-		</script>
-
-	</head>
-
-	<body>
-		<ul id="messages"></ul>
-
-		<div id="key">
-		  <div id="pointer" style="display:none;"></div>
-			<div id="box1">
-				<a href="about.md" class="logo"></a>
-			</div>
-			<div id="box2">
-				<button class="save function button-picture">Save</button>
-				<button class="new function button-picture">New</button>
-				<button class="duplicate function button-picture">Duplicate & Edit</button>
-				<button class="raw function button-picture">Just Text</button>
-				<button class="twitter function button-picture">Twitter</button>
-			</div>
-			<div id="box3" style="display:none;">
-				<div class="label"></div>
-				<div class="shortcut"></div>
-			</div>
-		</div>
-
-		<div id="linenos"></div>
-		<pre id="box" style="display:none;" class="hljs" tabindex="0"><code></code></pre>
-		<textarea spellcheck="false" style="display:none;"></textarea>
-
-	</body>
-
+	
+			// Event listeners for mobile buttons
+			document.getElementById('save-btn').addEventListener('click', () => app.lockDocument());
+			document.getElementById('new-btn').addEventListener('click', () => app.newDocument(true));
+			document.getElementById('duplicate-btn').addEventListener('click', () => app.duplicateDocument());
+			document.getElementById('raw-btn').addEventListener('click', () => {
+				if (app.doc && app.doc.key) {
+					window.location.href = app.baseUrl + 'raw/' + app.doc.key;
+				} else {
+					console.warn('No document to view as raw.');
+				}
+			});
+			document.getElementById('discord-btn').addEventListener('click', () => {
+				window.open('https://discord.euphoriadevelopment.uk', '_blank');
+			});
+		});
+	</script>			
+  </body>
 </html>

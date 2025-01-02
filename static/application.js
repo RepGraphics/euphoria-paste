@@ -99,9 +99,9 @@ var haste = function(appName, options) {
   this.options = options;
   this.configureShortcuts();
   this.configureButtons();
-  // If twitter is disabled, hide the button
-  if (!options.twitter) {
-    $('#box2 .twitter').hide();
+  // If discord is disabled, hide the button
+  if (!options.discord) {
+    $('#box2 .discord').hide();
   };
   this.baseUrl = options.baseUrl || '/';
 };
@@ -128,7 +128,7 @@ haste.prototype.lightKey = function() {
 
 // Show the full key
 haste.prototype.fullKey = function() {
-  this.configureKey(['new', 'duplicate', 'twitter', 'raw']);
+  this.configureKey(['new', 'duplicate', 'discord', 'raw']);
 };
 
 // Set the key up for certain things to be enabled
@@ -148,16 +148,16 @@ haste.prototype.configureKey = function(enable) {
 
 // Remove the current document (if there is one)
 // and set up for a new one
-haste.prototype.newDocument = function(hideHistory) {
+haste.prototype.newDocument = function (hideHistory = false) {
   this.$box.hide();
   this.doc = new haste_document(this);
   if (!hideHistory) {
-    window.history.pushState(null, this.appName, this.baseUrl);
+      window.history.pushState(null, this.appName, this.baseUrl);
   }
   this.setTitle();
   this.lightKey();
-  this.$textarea.val('').show('fast', function() {
-    this.focus();
+  this.$textarea.val('').show('fast', function () {
+      this.focus();
   });
   this.removeLineNumbers();
 };
@@ -228,34 +228,36 @@ haste.prototype.loadDocument = function(key) {
 };
 
 // Duplicate the current document - only if locked
-haste.prototype.duplicateDocument = function() {
-  if (this.doc.locked) {
-    var currentData = this.doc.data;
-    this.newDocument();
-    this.$textarea.val(currentData);
+haste.prototype.duplicateDocument = function () {
+  if (this.doc && this.doc.locked) {
+      const currentData = this.doc.data;
+      this.newDocument();
+      this.$textarea.val(currentData);
+  } else {
+      console.warn('No document to duplicate.');
   }
 };
 
 // Lock the current document
-haste.prototype.lockDocument = function() {
-  var _this = this;
-  this.doc.save(this.$textarea.val(), function(err, ret) {
-    if (err) {
-      _this.showMessage(err.message, 'error');
-    }
-    else if (ret) {
-      _this.$code.html(ret.value);
-      _this.setTitle(ret.key);
-      var file = _this.baseUrl + ret.key;
-      if (ret.language) {
-        file += '.' + _this.lookupExtensionByType(ret.language);
+haste.prototype.lockDocument = function () {
+  const _this = this;
+  if (!this.doc || this.$textarea.val().trim() === '') {
+      console.warn('Cannot save an empty document.');
+      return;
+  }
+  this.doc.save(this.$textarea.val(), function (err, ret) {
+      if (err) {
+          _this.showMessage(err.message, 'error');
+      } else if (ret) {
+          _this.$code.html(ret.value);
+          _this.setTitle(ret.key);
+          const file = _this.baseUrl + ret.key + (_this.lookupExtensionByType(ret.language) || '');
+          window.history.pushState(null, _this.appName + '-' + ret.key, file);
+          _this.fullKey();
+          _this.$textarea.val('').hide();
+          _this.$box.show().focus();
+          _this.addLineNumbers(ret.lineCount);
       }
-      window.history.pushState(null, _this.appName + '-' + ret.key, file);
-      _this.fullKey();
-      _this.$textarea.val('').hide();
-      _this.$box.show().focus();
-      _this.addLineNumbers(ret.lineCount);
-    }
   });
 };
 
@@ -309,14 +311,14 @@ haste.prototype.configureButtons = function() {
       }
     },
     {
-      $where: $('#box2 .twitter'),
-      label: 'Twitter',
+      $where: $('#box2 .discord'),
+      label: 'Support Discord',
       shortcut: function(evt) {
-        return _this.options.twitter && _this.doc.locked && evt.shiftKey && evt.ctrlKey && evt.keyCode == 84;
+        return _this.options.discord && _this.doc.locked && evt.shiftKey && evt.ctrlKey && evt.keyCode == 84;
       },
       shortcutDescription: 'control + shift + t',
       action: function() {
-        window.open('https://twitter.com/share?url=' + encodeURI(window.location.href));
+        window.open('https://discord.com/share?url=' + encodeURI(window.location.href));
       }
     }
   ];
