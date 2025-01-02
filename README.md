@@ -7,10 +7,12 @@ and has a very easy adapter interface for other stores.
 
 Objectives:
 
-* Alter UI for accessibility.
+* Alter UI for accessibility ✅
 * UI changes for Mobile.
-* Performance Upgrades.
+* Performance Upgrades ✅
 * Easier Brand Configuration.
+* Upgraded to use ES Modules ✅
+* Migrated from Winston to Pino ✅
 
 
 ## Tested Browsers
