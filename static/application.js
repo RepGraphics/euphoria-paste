@@ -76,6 +76,8 @@ haste_document.prototype.save = function(data, callback) {
         language: high.language,
         lineCount: data.split('\n').length
       });
+      // Update the URL without reloading the page
+      history.pushState(null, null, _this.app.baseUrl + res.key);
     },
     error: function(res) {
       try {
