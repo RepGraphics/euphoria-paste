@@ -39,6 +39,7 @@ Other Types are unable to be tested by me, so if you are able to, to help develo
 
 * `host` - the host the server runs on (default localhost)
 * `port` - the port the server runs on (default 7777)
+* `discordWebhookUrl` - Webhook URL to send Logging to.
 * `keyLength` - the length of the keys to user (default 10)
 * `maxLength` - maximum length of a paste (default 400000)
 * `staticMaxAge` - max age for static assets (86400)
