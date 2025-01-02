@@ -5,7 +5,7 @@ Euphoria Paste, is an open-source pastebin software written in node.js forked fr
 installable in any network.  It can be backed by either redis or filesystem,
 and has a very easy adapter interface for other stores.
 
-Objectives:
+## Objectives:
 
 * Alter UI for accessibility ✅
 * UI changes for Mobile.
@@ -14,11 +14,19 @@ Objectives:
 * Upgraded to use ES Modules ✅
 * Migrated from Winston to Pino ✅
 * Discord Webhooks Added for Additional Logging ✅
+* Improved Logging, Migrated to Pino-Pretty ✅
 
 
 ## Tested Browsers
 
 * Chrome - Version 131.0.6778.205 (Official Build) (64-bit)
+
+
+## Tested File Storages
+Other Types are unable to be tested by me, so if you are able to, to help development, please do.
+
+* File Directory
+
 
 ## Installation
 
