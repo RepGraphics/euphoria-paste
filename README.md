@@ -1,40 +1,21 @@
-# Important announcement:
+ 
+# Euphoria Paste (Haste)
 
-## [Soon a new version of Hastebin will be launched!](https://github.com/toptal/haste-server/issues/429)
-
-[Check here what you need to know.](https://github.com/toptal/haste-server/issues/429)
-
-.    
-.    
-.    
-
-# Haste
-
-Haste is an open-source pastebin software written in node.js, which is easily
+Euphoria Paste, is an open-source pastebin software written in node.js forked from the official Haste Repository, it is easily
 installable in any network.  It can be backed by either redis or filesystem,
-and has a very easy adapter interface for other stores.  A publicly available
-version can be found at [hastebin.com](http://hastebin.com)
+and has a very easy adapter interface for other stores.p
 
-Major design objectives:
+Objectives:
 
-* Be really pretty
-* Be really simple
-* Be easy to set up and use
+* Alter UI for accessibility.
+* UI changes for Mobile.
 
-Haste works really well with a little utility called
-[haste-client](https://github.com/seejohnrun/haste-client), allowing you
-to do things like:
 
-`cat something | haste`
-
-which will output a URL to share containing the contents of `cat something`'s
-STDOUT.  Check the README there for more details and usages.
 
 ## Tested Browsers
 
 * Firefox 8
 * Chrome 17
-* Safari 5.3
 
 ## Installation
 
