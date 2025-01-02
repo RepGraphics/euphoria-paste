@@ -8,7 +8,7 @@ and has a very easy adapter interface for other stores.
 ## Objectives:
 
 * Alter UI for accessibility ✅
-* UI changes for Mobile.
+* UI changes for Mobile ✅
 * Performance Upgrades ✅
 * Easier Brand Configuration.
 * Upgraded to use ES Modules ✅
