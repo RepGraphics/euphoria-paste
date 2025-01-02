@@ -1,5 +1,5 @@
 {
-  "name": "haste",
+  "name": "euphoria-paste",
   "version": "0.1.0",
   "private": true,
   "description": "Private Pastebin Server",
@@ -8,11 +8,12 @@
     "pastebin"
   ],
   "author": {
-    "name": "John Crepezzi",
-    "email": "john.crepezzi@gmail.com",
-    "url": "http://seejohncode.com/"
+    "name": "Rep Graphics",
+    "email": "repgraphics@euphoriadevelopment.uk",
+    "url": "https://euphoriadevelopment.uk"
   },
   "main": "haste",
+  "type": "module",
   "dependencies": {
     "@google-cloud/datastore": "^9.2.1",
     "aws-sdk": "^2.1692.0",
