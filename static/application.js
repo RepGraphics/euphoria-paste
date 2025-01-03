@@ -76,8 +76,6 @@ haste_document.prototype.save = function(data, callback) {
         language: high.language,
         lineCount: data.split('\n').length
       });
-      // Update the URL without reloading the page
-      history.pushState(null, null, _this.app.baseUrl + res.key);
     },
     error: function(res) {
       try {
@@ -209,12 +207,11 @@ haste.prototype.removeLineNumbers = function() {
 
 // Load a document and show it
 haste.prototype.loadDocument = function(key) {
-  // Split the key up
-  var parts = key.split('.', 2);
-  // Ask for what we want
+  // Remove any language extension from key
+  key = key.split(/[\.\/]/)[0];
   var _this = this;
   _this.doc = new haste_document(this);
-  _this.doc.load(parts[0], function(ret) {
+  _this.doc.load(key, function(ret) {
     if (ret) {
       _this.$code.html(ret.value);
       _this.setTitle(ret.key);
@@ -226,7 +223,7 @@ haste.prototype.loadDocument = function(key) {
     else {
       _this.newDocument();
     }
-  }, this.lookupTypeByExtension(parts[1]));
+  });
 };
 
 // Duplicate the current document - only if locked
@@ -241,25 +238,26 @@ haste.prototype.duplicateDocument = function () {
 };
 
 // Lock the current document
-haste.prototype.lockDocument = function () {
-  const _this = this;
-  if (!this.doc || this.$textarea.val().trim() === '') {
-      console.warn('Cannot save an empty document.');
-      return;
-  }
-  this.doc.save(this.$textarea.val(), function (err, ret) {
-      if (err) {
-          _this.showMessage(err.message, 'error');
-      } else if (ret) {
-          _this.$code.html(ret.value);
-          _this.setTitle(ret.key);
-          const file = _this.baseUrl + ret.key;
-          window.history.pushState(null, _this.appName + '-' + ret.key, file);
-          _this.fullKey();
-          _this.$textarea.val('').hide();
-          _this.$box.show().focus();
-          _this.addLineNumbers(ret.lineCount);
-      }
+haste.prototype.lockDocument = function() {
+  var _this = this;
+  this.doc.save(this.$textarea.val(), function(err, ret) {
+    if (err) {
+      _this.showMessage(err.message, 'error');
+    }
+    else if (ret) {
+      _this.$code.html(ret.value);
+      _this.setTitle(ret.key);
+      // Only use the key for URL, no language extension
+      window.history.pushState(
+        {key: ret.key}, 
+        _this.appName + '-' + ret.key,
+        _this.baseUrl + ret.key
+      );
+      _this.fullKey();
+      _this.$textarea.val('').hide();
+      _this.$box.show().focus();
+      _this.addLineNumbers(ret.lineCount);
+    }
   });
 };
 

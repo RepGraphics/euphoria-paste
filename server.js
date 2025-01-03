@@ -144,9 +144,11 @@ app.use(serveStatic(staticOptions));
 // Fallback to index.html for unmatched routes
 app.use(route(router => {
     router.get('/:id', (req, res, next) => {
+        // Strip any file extension from the ID
+        req.params.id = req.params.id.split('.')[0];
         req.sturl = '/';
         next();
-    });
+      });
 }));
 app.use(serveStatic({ ...staticOptions, index: 'index.html' }));
 

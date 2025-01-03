@@ -1,7 +1,10 @@
 body {
-	background: #0d0d0d;
-	padding: 20px 50px;
-	margin: 0px;
+    background: #0d0d0d;
+    padding: 20px 50px;
+    margin: 0;
+    height: 100vh;
+    overflow-y: auto;
+	overflow-x: auto;
 }
 
 body, textarea, #key, .fab, #messages, .tippy-content {
@@ -33,19 +36,19 @@ body, textarea, #key, .fab, #messages, .tippy-content {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background-color: #444;
+	background-color: #0d0d0d;
     color: white;
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0px 10px rgb(255 255 255 / 22%);
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
 #mobile-controls .fab:hover {
-    background-color: #666;
+	opacity: 0.8;
 }
   
   /* Mobile-only visibility */
@@ -64,55 +67,84 @@ body, textarea, #key, .fab, #messages, .tippy-content {
         display: none !important; /* Hide on larger screens */
     }
 }
+
+
+#stats-container {
+	position: fixed;
+	bottom: 20px;
+	left: 50px;
+	background: rgba(13, 13, 13, 0.8);
+	padding: 10px;
+	border-radius: 5px;
+	color: #fff;
+	font-size: 12px;
+	z-index: 1000;
+  }
   
+  #stats-container span {
+	margin-right: 15px;
+  }
+  
+  /* Adjust for mobile */
+  @media (max-width: 768px) {
+	#stats-container {
+	  bottom: 1px; /* Above the mobile controls */
+	  left: 1px;
+	}
+  }
   
 /* textarea */
 
 textarea {
-	background: transparent;
-	border: 0px;
-	color: #fff;
-	padding: 0px;
-	width: 100%;
-	height: 100%;
-	font-family: monospace;
-	outline: none;
-	resize: none;
-	font-size: 13px;
-	margin-top: 0;
-	margin-bottom: 0;
+    background: transparent;
+    border: 0;
+    color: #fff;
+    padding: 0 0 0 40px;
+    width: calc(100% - 40px);
+    min-height: calc(100vh - 40px);
+    font-family: monospace;
+    outline: none;
+    resize: none;
+    font-size: 13px;
+    margin: 0;
+    position: relative;
+    white-space: pre;
+    overflow-y: auto;
+	overflow-x: auto;
 }
-
 /* the line numbers */
 
 #linenos {
-  color: #7d7d7d;
-	z-index: -1000;
-	position: absolute;
-	top: 20px;
-	left: 0px;
-	width: 30px; /* 30 to get 20 away from box */
-	font-size: 13px;
-	font-family: monospace;
-	text-align: right;
-	user-select: none;
+    color: #7d7d7d;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 30px;
+    font-size: 13px;
+    font-family: monospace;
+    text-align: right;
+    user-select: none;
+    padding-right: 10px;
+    background: #0d0d0d;
 }
 
-/* code box when locked */
-
 #box {
-	padding: 0px;
-	margin: 0px;
-	width: 100%;
-	border: 0px;
-	outline: none;
-	font-size: 13px;
-  overflow: inherit;
+    padding: 0 0 0 40px;
+    margin: 0;
+    width: calc(100% - 40px);
+    min-height: calc(100vh - 40px);
+    border: 0;
+    outline: none;
+    font-size: 13px;
+    position: relative;
+    white-space: pre;
+    overflow-y: auto;
+	overflow-x: auto;
 }
 
 #box code {
-	padding: 0px;
-	background: transparent !important; /* don't hide hastebox */
+    padding: 0;
+    display: block;
 }
 
 /* key */
