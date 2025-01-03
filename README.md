@@ -17,6 +17,9 @@ and has a very easy adapter interface for other stores.
 * Improved Logging, Migrated to Pino-Pretty ✅
 * Added Line, Word & Character Count ✅
 
+## Contributions
+
+All contributions are appreciated, simply make a pull request detailing changes and i'll review it before pushing it!
 
 ## Tested Browsers
 
