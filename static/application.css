@@ -44,7 +44,7 @@ body, textarea, #key, .fab, #messages, .tippy-content {
   /* Adjust for mobile */
   @media (max-width: 1023px) {
 	#stats-container {
-	  bottom: 5%; /* Above the mobile controls */
+	  bottom: 10%; /* Above the mobile controls */
 	  left: 1px;
 	}
   }
