@@ -6,6 +6,9 @@ export default {
   "maxLength": 400000,
   "staticMaxAge": 86400,
   "recompressStaticAssets": true,
+  "ownerDiscordId": "",
+  "ownerUsername": "",
+  "ownerPassword": "",
   "logging": [
       {
           "level": "verbose",

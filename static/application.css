@@ -4,7 +4,7 @@ body {
     margin: 0;
     height: 100vh;
     overflow-y: auto;
-	overflow-x: auto;
+	  overflow-x: auto;
 }
 
 body, textarea, #key, .fab, #messages, .tippy-content {
@@ -21,53 +21,9 @@ body, textarea, #key, .fab, #messages, .tippy-content {
 	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
 }
 
-/* Floating Action Buttons for Mobile */
-#mobile-controls {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 1000;
+.btm-nav>* {
+  flex-direction: row !important;
 }
-
-#mobile-controls .fab {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-	background-color: #0d0d0d;
-    color: white;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0px 10px rgb(255 255 255 / 22%);
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-#mobile-controls .fab:hover {
-	opacity: 0.8;
-}
-  
-  /* Mobile-only visibility */
-  @media (max-width: 768px) {
-	#mobile-controls {
-	  display: flex;
-	}
-  
-	#key {
-	  display: none !important; /* Hide desktop controls */
-	}
-  }
-  
-  @media (min-width: 768px) {
-    #mobile-controls {
-        display: none !important; /* Hide on larger screens */
-    }
-}
-
 
 #stats-container {
 	position: fixed;
@@ -86,9 +42,9 @@ body, textarea, #key, .fab, #messages, .tippy-content {
   }
   
   /* Adjust for mobile */
-  @media (max-width: 768px) {
+  @media (max-width: 1023px) {
 	#stats-container {
-	  bottom: 1px; /* Above the mobile controls */
+	  bottom: 5%; /* Above the mobile controls */
 	  left: 1px;
 	}
   }
@@ -117,15 +73,15 @@ textarea {
 #linenos {
     color: #7d7d7d;
     position: absolute;
-    top: 20px;
-    left: 20px;
+    top: 0px;
+    left: 0px;
     width: 30px;
     font-size: 13px;
     font-family: monospace;
     text-align: right;
     user-select: none;
     padding-right: 10px;
-    background: #0d0d0d;
+    background: #0d0d0d2e;
 }
 
 #box {

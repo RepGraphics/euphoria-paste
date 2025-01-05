@@ -6,6 +6,10 @@
     <link rel="stylesheet" type="text/css" href="solarized_dark.css" />
     <link rel="stylesheet" type="text/css" href="application.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/daisyui@4.5.0/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="highlight.min.js"></script>
     <script src="application.js"></script>
@@ -16,7 +20,16 @@
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 	
     <meta name="robots" content="noindex,nofollow" />
-
+    <script>
+		tailwind.config = {
+		  theme: {
+			extend: {}
+		  },
+		  daisyui: {
+			themes: ["dark"]
+		  }
+		}
+	</script>
 	<script type="text/javascript">
 		var app = null;
 		
@@ -53,95 +66,131 @@
 	</script>
   </head>
 
-  <body>
-    <ul id="messages"></ul>
+  <body class="min-h-screen bg-base-100">
+    <ul id="messages" class="toast toast-end"></ul>
 
-    <div id="key">
-      <div id="pointer" style="display: none;"></div>
-      <div id="box1">
-        <img src="https://euphoriadevelopment.uk/assets/img/euphoria.png" alt="Logo" class="logo" />
-      </div>
-      <div id="box2">
-        <button class="save function button-picture"><i class="fa fa-save"></i></button>
-        <button class="new function button-picture"><i class="fa fa-file"></i></button>
-        <button class="duplicate function button-picture"><i class="fa fa-copy"></i></button>
-        <button class="raw function button-picture"><i class="fa fa-file-alt"></i></button>
-        <button class="discord function button-picture"><i class="fa-brands fa-discord"></i></button>
-      </div>
-      <div id="box3" style="display: none;">
-        <div class="label"></div>
-        <div class="shortcut"></div>
-      </div>
-    </div>
+<!-- Replace navbar buttons section -->
+<div class="navbar bg-base-100 fixed top-0 right-0 z-50 hidden lg:flex"> <!-- Changed classes here -->
+	<div class="flex-1">
+	  <img src="https://euphoriadevelopment.uk/assets/img/euphoria.png" alt="Logo" class="w-8 h-8" />
+	</div>
+	<div class="flex-none gap-2">
+	  <button class="btn btn-ghost function save" id="desktop-save-btn" data-tippy-content="Save">
+		<i class="fa fa-save"></i>
+	  </button>
+	  <button class="btn btn-ghost function new" id="desktop-new-btn" data-tippy-content="New Document">
+		<i class="fa fa-file"></i>
+	  </button>
+	  <button class="btn btn-ghost function duplicate" id="desktop-duplicate-btn" data-tippy-content="Duplicate">
+		<i class="fa fa-copy"></i>
+	  </button>
+	  <button class="btn btn-ghost function raw" id="desktop-raw-btn" data-tippy-content="View Raw">
+		<i class="fa fa-file-alt"></i>
+	  </button>
+	  <button class="btn btn-ghost function discord" id="desktop-discord-btn" data-tippy-content="Support Discord">
+		<i class="fa-brands fa-discord"></i>
+	  </button>
+	</div>
+  </div>
 
-    <div id="linenos"></div>
-    <pre id="box" style="display: none;" class="hljs" tabindex="0"><code></code></pre>
-    <textarea spellcheck="false" style="display: none;"></textarea>
+	<div class="container mx-auto mt-16 relative">
+		<div id="linenos" class="fixed left-4 top-20 text-base-content/50 font-mono text-right pr-2"></div>
+		<pre id="box" class="hidden font-mono pl-16"><code></code></pre>
+		<textarea spellcheck="false" class="textarea textarea-bordered w-full min-h-screen pl-16 font-mono hidden"></textarea>
+	</div>
 
 	<!-- Add this after the textarea -->
-	<div id="stats-container">
-		<span id="line-count">Lines: 0</span>
-		<span id="word-count">Words: 0</span>
-		<span id="char-count">Characters: 0</span>
-  	</div>
+    <div id="stats-container" class="stats stats-vertical lg:stats-horizontal shadow fixed bottom-4 left-4">
+		<div class="stat">
+		  <div class="stat-title" id="line-count">Lines: 0</div>
+		</div>
+		<div class="stat">
+		  <div class="stat-title" id="word-count">Words: 0</div>
+		</div>
+		<div class="stat">
+		  <div class="stat-title" id="char-count">Characters: 0</div>
+		</div>
+	  </div>
 
-	<!-- Floating Action Buttons for Mobile -->
-	<div id="mobile-controls">
-		<button id="save-btn" class="fab save" data-tippy-content="Save"><i class="fa fa-save"></i></button>
-		<button id="new-btn" class="fab new" data-tippy-content="New Document"><i class="fa fa-file"></i></button>
-		<button id="duplicate-btn" class="fab duplicate" data-tippy-content="Duplicate"><i class="fa fa-copy"></i></button>
-		<button id="raw-btn" class="fab raw" data-tippy-content="View Raw"><i class="fa fa-file-alt"></i></button>
-		<button id="discord-btn" class="fab discord" data-tippy-content="Support Discord"><i class="fa-brands fa-discord"></i></button>
+<!-- Update mobile controls -->
+<div id="mobile-controls" class="btm-nav lg:hidden"> <!-- Changed from lg:hidden to md:hidden -->
+	<div class="flex justify-between w-full px-4"> <!-- Added flex container -->
+	  <button class="btn btn-ghost function save" id="mobile-save-btn" data-tippy-content="Save">
+		<i class="fa fa-save text-xl"></i>
+	  </button>
+	  <button class="btn btn-ghost function new" id="mobile-new-btn" data-tippy-content="New Document">
+		<i class="fa fa-file text-xl"></i>
+	  </button>
+	  <button class="btn btn-ghost function duplicate" id="mobile-duplicate-btn" data-tippy-content="Duplicate">
+		<i class="fa fa-copy text-xl"></i>
+	  </button>
+	  <button class="btn btn-ghost function raw" id="mobile-raw-btn" data-tippy-content="View Raw">
+		<i class="fa fa-file-alt text-xl"></i>
+	  </button>
+	  <button class="btn btn-ghost function discord" id="mobile-discord-btn" data-tippy-content="Support Discord">
+		<i class="fa-brands fa-discord text-xl"></i>
+	  </button>
 	</div>
+  </div>
 	
-	<script>
-		document.addEventListener('DOMContentLoaded', () => {
-			const buttons = document.querySelectorAll('#mobile-controls .fab');
-	
-			// Initialize Tippy.js tooltips
-			buttons.forEach((button) => {
-				tippy(button, {
-					content: button.getAttribute('data-tippy-content'),
-					theme: 'dark',
-					duration: [300, 200],
-					placement: 'left',
-					arrow: true,
-				});
-			});
-	
-			// Event listeners for mobile buttons
-			document.getElementById('save-btn').addEventListener('click', () => app.lockDocument());
-			document.getElementById('new-btn').addEventListener('click', () => app.newDocument(true));
-			document.getElementById('duplicate-btn').addEventListener('click', () => app.duplicateDocument());
-			document.getElementById('raw-btn').addEventListener('click', () => {
-				if (app.doc && app.doc.key) {
-					window.location.href = app.baseUrl + 'raw/' + app.doc.key;
-				} else {
-					console.warn('No document to view as raw.');
-				}
-			});
-			document.getElementById('discord-btn').addEventListener('click', () => {
-				window.open('https://discord.euphoriadevelopment.uk', '_blank');
-			});
-
-			const textarea = document.querySelector('textarea');
-    		const lineCount = document.getElementById('line-count');
-    		const wordCount = document.getElementById('word-count');
-    		const charCount = document.getElementById('char-count');
-
-    		function updateStats() {
-      			const text = textarea.value;
-      			const lines = text.split('\n').length;
-      			const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
-      			const chars = text.length;
-
-      			lineCount.textContent = `Lines: ${lines}`;
-      			wordCount.textContent = `Words: ${words}`;
-      			charCount.textContent = `Characters: ${chars}`;
-    		}
-
-    		textarea.addEventListener('input', updateStats);
+<!-- Update script section -->
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+	  // Function to setup button click handlers
+	  function setupButtonHandlers(prefix) {
+		document.getElementById(`${prefix}-save-btn`)?.addEventListener('click', () => app.lockDocument());
+		document.getElementById(`${prefix}-new-btn`)?.addEventListener('click', () => app.newDocument(true));
+		document.getElementById(`${prefix}-duplicate-btn`)?.addEventListener('click', () => app.duplicateDocument());
+		document.getElementById(`${prefix}-raw-btn`)?.addEventListener('click', () => {
+		  if (app.doc && app.doc.key) {
+			window.location.href = app.baseUrl + 'raw/' + app.doc.key;
+		  }
 		});
-	</script>			
+		document.getElementById(`${prefix}-discord-btn`)?.addEventListener('click', () => {
+		  if (app.doc && app.doc.key) {
+			window.open('https://discord.com/share?url=' + encodeURI(window.location.href));
+		  }
+		});
+	  }
+	
+	  // Setup both mobile and desktop buttons
+	  setupButtonHandlers('mobile');
+	  setupButtonHandlers('desktop');
+	
+	  // Setup tooltips for all function buttons
+	  document.querySelectorAll('.function').forEach((button) => {
+		tippy(button, {
+		  content: button.getAttribute('data-tippy-content'),
+		  theme: 'dark',
+		  duration: [300, 200],
+		  placement: 'top',
+		  arrow: true,
+		});
+	  });
+
+	const textarea = document.querySelector('textarea');
+  	const lineCount = document.getElementById('line-count');
+  	const wordCount = document.getElementById('word-count');
+  	const charCount = document.getElementById('char-count');
+
+  	function updateCounts() {
+    	const text = textarea.value;
+    	const lines = text.split('\n').length;
+    	const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    	const chars = text.length;
+
+    	lineCount.textContent = `Lines: ${lines}`;
+    	wordCount.textContent = `Words: ${words}`;
+    	charCount.textContent = `Characters: ${chars}`;
+  	}
+
+  	// Update on any input change
+  	textarea.addEventListener('input', updateCounts);
+  	textarea.addEventListener('paste', updateCounts);
+  
+  	// Initial count
+  	updateCounts();
+	});
+	</script>		
   </body>
 </html>
