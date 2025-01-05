@@ -9,6 +9,7 @@ and has a very easy adapter interface for other stores.
 
 * Alter UI for accessibility ✅
 * UI changes for Mobile ✅
+* Modernised UI ✅
 * Performance Upgrades ✅
 * Easier Brand Configuration (Not yet implemented)
 * Upgraded to use ES Modules ✅
