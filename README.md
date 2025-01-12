@@ -1,3 +1,5 @@
+The URL attached to this Project displays our Paid Version 2.0, this version will remain free and be updated still. However the changes in v2.0 won't be added here.
+
  
 # Euphoria Paste (Haste)
 
